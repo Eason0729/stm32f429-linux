@@ -1,7 +1,7 @@
-From 027634354249192518fea43d7c9975b2025ac150 Mon Sep 17 00:00:00 2001
+From 46f1c15dcbf9ecf7eed39e17a561d68d65fbea2a Mon Sep 17 00:00:00 2001
 From: Chisheng Chen <johnny1001s000602@gmail.com>
 Date: Sat, 18 Apr 2026 03:20:12 +0800
-Subject: [PATCH 4/4] Add romfs
+Subject: [PATCH 3/3] Add romfs
 
 ---
  Config.in.legacy                              | 11 ------

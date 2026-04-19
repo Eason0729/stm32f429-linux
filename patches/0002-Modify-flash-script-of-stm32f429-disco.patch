@@ -1,7 +1,7 @@
-From 6216507841391dbc72d74f1e1d05fecd312e5700 Mon Sep 17 00:00:00 2001
+From 0d5426482f1642f5506d2776ed3fd4c4df57b345 Mon Sep 17 00:00:00 2001
 From: Chisheng Chen <johnny1001s000602@gmail.com>
 Date: Sat, 18 Apr 2026 01:51:05 +0800
-Subject: [PATCH 3/4] Modify flash script of stm32f429-disco
+Subject: [PATCH 2/3] Modify flash script of stm32f429-disco
 
 ---
  .../stmicroelectronics/stm32f429-disco/flash.sh  | 16 +++++++++++++++-
