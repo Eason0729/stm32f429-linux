@@ -1,0 +1,258 @@
+From ad04160f2b7e610ac806a4168e7b603dbf59b328 Mon Sep 17 00:00:00 2001
+From: Chisheng Chen <johnny1001s000602@gmail.com>
+Date: Sun, 19 Apr 2026 20:45:34 +0800
+Subject: [PATCH 1/4] Add Linux kernel patch and config
+
+---
+ .../stm32f429-disco/linux.config              |  91 ++++++++++++
+ .../stm32f429-disco/patches/linux/linux.patch | 140 ++++++++++++++++++
+ 2 files changed, 231 insertions(+)
+ create mode 100644 board/stmicroelectronics/stm32f429-disco/linux.config
+ create mode 100644 board/stmicroelectronics/stm32f429-disco/patches/linux/linux.patch
+
+diff --git a/board/stmicroelectronics/stm32f429-disco/linux.config b/board/stmicroelectronics/stm32f429-disco/linux.config
+new file mode 100644
+index 00000000..03282c89
+--- /dev/null
++++ b/board/stmicroelectronics/stm32f429-disco/linux.config
+@@ -0,0 +1,91 @@
++# CONFIG_LOCALVERSION_AUTO is not set
++CONFIG_NO_HZ_IDLE=y
++CONFIG_HIGH_RES_TIMERS=y
++CONFIG_PREEMPT=y
++CONFIG_LOG_BUF_SHIFT=12
++CONFIG_BLK_DEV_INITRD=y
++CONFIG_CC_OPTIMIZE_FOR_SIZE=y
++CONFIG_LD_DEAD_CODE_DATA_ELIMINATION=y
++CONFIG_EXPERT=y
++# CONFIG_MULTIUSER is not set
++# CONFIG_FHANDLE is not set
++# CONFIG_POSIX_TIMERS is not set
++# CONFIG_BUG is not set
++# CONFIG_FUTEX is not set
++# CONFIG_EPOLL is not set
++# CONFIG_SIGNALFD is not set
++# CONFIG_TIMERFD is not set
++# CONFIG_EVENTFD is not set
++# CONFIG_AIO is not set
++# CONFIG_IO_URING is not set
++# CONFIG_ADVISE_SYSCALLS is not set
++# CONFIG_MEMBARRIER is not set
++# CONFIG_RSEQ is not set
++# CONFIG_CACHESTAT_SYSCALL is not set
++# CONFIG_KALLSYMS is not set
++# CONFIG_MMU is not set
++CONFIG_ARCH_STM32=y
++# CONFIG_MACH_STM32F469 is not set
++# CONFIG_MACH_STM32F746 is not set
++# CONFIG_MACH_STM32F769 is not set
++# CONFIG_MACH_STM32H743 is not set
++CONFIG_CPU_V7M_NUM_IRQ=240
++# CONFIG_ARM_DMA_MEM_BUFFERABLE is not set
++CONFIG_SET_MEM_PARAM=y
++CONFIG_DRAM_BASE=0x90000000
++CONFIG_DRAM_SIZE=0x00800000
++CONFIG_HZ_1000=y
++# CONFIG_ATAGS is not set
++CONFIG_XIP_KERNEL=y
++CONFIG_XIP_PHYS_ADDR=0x0800C000
++CONFIG_XIP_DEFLATED_DATA=y
++# CONFIG_AUTO_ZRELADDR is not set
++# CONFIG_SUSPEND is not set
++# CONFIG_SECCOMP is not set
++# CONFIG_STACKPROTECTOR is not set
++# CONFIG_COMPAT_32BIT_TIME is not set
++# CONFIG_BLOCK is not set
++# CONFIG_COREDUMP is not set
++CONFIG_SLUB_TINY=y
++# CONFIG_COMPAT_BRK is not set
++# CONFIG_VM_EVENT_COUNTERS is not set
++CONFIG_DEVTMPFS=y
++CONFIG_DEVTMPFS_MOUNT=y
++# CONFIG_STANDALONE is not set
++# CONFIG_PREVENT_FIRMWARE_BUILD is not set
++# CONFIG_FW_LOADER is not set
++# CONFIG_ALLOW_DEV_COREDUMP is not set
++CONFIG_MTD=y
++CONFIG_MTD_ROM=y
++CONFIG_MTD_PHYSMAP=y
++CONFIG_MTD_PHYSMAP_OF=y
++# CONFIG_INPUT_KEYBOARD is not set
++# CONFIG_INPUT_MOUSE is not set
++# CONFIG_SERIO is not set
++# CONFIG_UNIX98_PTYS is not set
++# CONFIG_LEGACY_PTYS is not set
++CONFIG_SERIAL_STM32=y
++CONFIG_SERIAL_STM32_CONSOLE=y
++CONFIG_HW_RANDOM=y
++CONFIG_HW_RANDOM_STM32=y
++# CONFIG_DEVMEM is not set
++# CONFIG_DEVPORT is not set
++# CONFIG_HWMON is not set
++# CONFIG_USB_SUPPORT is not set
++CONFIG_RTC_CLASS=y
++CONFIG_RTC_DRV_STM32=y
++# CONFIG_VIRTIO_MENU is not set
++# CONFIG_VHOST_MENU is not set
++# CONFIG_FILE_LOCKING is not set
++# CONFIG_DNOTIFY is not set
++# CONFIG_INOTIFY_USER is not set
++CONFIG_ROMFS_FS=y
++# CONFIG_CRC_OPTIMIZATIONS is not set
++CONFIG_CONSOLE_LOGLEVEL_DEFAULT=15
++CONFIG_CONSOLE_LOGLEVEL_QUIET=15
++CONFIG_MESSAGE_LOGLEVEL_DEFAULT=7
++# CONFIG_SYMBOLIC_ERRNAME is not set
++# CONFIG_DEBUG_MISC is not set
++# CONFIG_SECTION_MISMATCH_WARN_ONLY is not set
++# CONFIG_RCU_TRACE is not set
++# CONFIG_RUNTIME_TESTING_MENU is not set
+diff --git a/board/stmicroelectronics/stm32f429-disco/patches/linux/linux.patch b/board/stmicroelectronics/stm32f429-disco/patches/linux/linux.patch
+new file mode 100644
+index 00000000..6e415e8a
+--- /dev/null
++++ b/board/stmicroelectronics/stm32f429-disco/patches/linux/linux.patch
+@@ -0,0 +1,140 @@
++diff -urN -x '.files-list-*' -x '.applied*' -x .applied_patches_list -x .br_regen_dot_config -x '*include-prefixes*' linux-6.19.4/arch/arm/boot/dts/st/stm32f429-disco.dts ../buildroot-2026.02/output/build/linux-6.19.4/arch/arm/boot/dts/st/stm32f429-disco.dts
++--- linux-6.19.4/arch/arm/boot/dts/st/stm32f429-disco.dts	2026-02-27 07:01:41.000000000 +0800
+++++ ../buildroot-2026.02/output/build/linux-6.19.4/arch/arm/boot/dts/st/stm32f429-disco.dts	2026-04-16 17:39:18.093484211 +0800
++@@ -57,7 +57,7 @@
++ 	compatible = "st,stm32f429i-disco", "st,stm32f429";
++ 
++ 	chosen {
++-		bootargs = "root=/dev/ram";
+++		bootargs = "root=mtd:romfs rootfstype=romfs ro";
++ 		stdout-path = "serial0:115200n8";
++ 	};
++ 
++@@ -66,6 +66,18 @@
++ 		reg = <0x90000000 0x800000>;
++ 	};
++ 
+++    	flash@8000000 {
+++		compatible = "mtd-rom";
+++		reg = <0x8000000 0x200000>;
+++		bank-width = <4>;
+++		#address-cells = <1>;
+++
+++		partition@150000 {
+++			label = "romfs";
+++			reg = <0x150000 0xb0000>;
+++		};
+++	};
+++
++ 	aliases {
++ 		serial0 = &usart1;
++ 	};
++@@ -98,6 +110,14 @@
++ 		regulator-name = "vcc5_host1";
++ 		regulator-always-on;
++ 	};
+++
+++    v3v3: regulator-v3v3 {
+++        compatible = "regulator-fixed";
+++        regulator-name = "v3v3";
+++        regulator-min-microvolt = <3300000>;
+++        regulator-max-microvolt = <3300000>;
+++        regulator-always-on;  
+++    };
++ };
++ 
++ &clk_hse {
++@@ -230,3 +250,14 @@
++ 	pinctrl-names = "default";
++ 	status = "okay";
++ };
+++
+++&sdio {
+++    status = "okay";
+++    pinctrl-names = "default", "opendrain";
+++    pinctrl-0 = <&sdio_pins>;
+++    pinctrl-1 = <&sdio_pins_od>;
+++    bus-width = <1>;
+++    max-frequency = <1000000>;
+++    broken-cd;
+++    vmmc-supply = <&v3v3>;
+++};
++diff -urN -x '.files-list-*' -x '.applied*' -x .applied_patches_list -x .br_regen_dot_config -x '*include-prefixes*' linux-6.19.4/drivers/char/hw_random/stm32-rng.c ../buildroot-2026.02/output/build/linux-6.19.4/drivers/char/hw_random/stm32-rng.c
++--- linux-6.19.4/drivers/char/hw_random/stm32-rng.c	2026-02-27 07:01:41.000000000 +0800
+++++ ../buildroot-2026.02/output/build/linux-6.19.4/drivers/char/hw_random/stm32-rng.c	2026-04-16 17:39:18.099484276 +0800
++@@ -363,11 +363,21 @@
++		return -EINVAL;
++	}
++
++-	clk_bulk_disable_unprepare(priv->data->nb_clock, priv->clk_bulk);
+++	if (IS_ENABLED(CONFIG_PM))
+++		clk_bulk_disable_unprepare(priv->data->nb_clock, priv->clk_bulk);
++
++	return 0;
++ }
++
+++static void stm32_rng_cleanup(struct hwrng *rng)
+++{
+++		struct stm32_rng_private *priv =
+++			container_of(rng, struct stm32_rng_private, rng);
+++		if (!IS_ENABLED(CONFIG_PM))
+++		clk_bulk_disable_unprepare(priv->data->nb_clock, priv->clk_bulk);
+++}
+++
+++
++ static void stm32_rng_remove(struct platform_device *ofdev)
++ {
++	pm_runtime_disable(&ofdev->dev);
++@@ -563,6 +573,7 @@
++
++	priv->rng.name = dev_driver_string(dev);
++	priv->rng.init = stm32_rng_init;
+++    priv->rng.cleanup = stm32_rng_cleanup;
++	priv->rng.read = stm32_rng_read;
++	priv->rng.quality = 900;
++
++diff -urN -x '.files-list-*' -x '.applied*' -x .applied_patches_list -x .br_regen_dot_config -x '*include-prefixes*' linux-6.19.4/drivers/gpu/drm/stm/ltdc.c ../buildroot-2026.02/output/build/linux-6.19.4/drivers/gpu/drm/stm/ltdc.c
++--- linux-6.19.4/drivers/gpu/drm/stm/ltdc.c	2026-02-27 07:01:41.000000000 +0800
+++++ ../buildroot-2026.02/output/build/linux-6.19.4/drivers/gpu/drm/stm/ltdc.c	2026-04-16 17:39:18.104484330 +0800
++@@ -2079,16 +2079,16 @@
++ 		drm_err(ddev, "Failed calling drm_vblank_init()\n");
++ 		goto err;
++ 	}
+++    if (IS_ENABLED(CONFIG_PM)) {
+++        clk_disable_unprepare(ldev->pixel_clk);
++ 
++-	clk_disable_unprepare(ldev->pixel_clk);
++-
++-	if (ldev->bus_clk)
++-		clk_disable_unprepare(ldev->bus_clk);
++-
++-	pinctrl_pm_select_sleep_state(ddev->dev);
+++        if (ldev->bus_clk)
+++            clk_disable_unprepare(ldev->bus_clk);
++ 
++-	pm_runtime_enable(ddev->dev);
+++        pinctrl_pm_select_sleep_state(ddev->dev);
++ 
+++        pm_runtime_enable(ddev->dev);
+++    }
++ 	return 0;
++ err:
++ 	clk_disable_unprepare(ldev->pixel_clk);
++@@ -2101,9 +2101,16 @@
++ 
++ void ltdc_unload(struct drm_device *ddev)
++ {
+++    struct ltdc_device *ldev = ddev->dev_private;
++ 	drm_dbg_driver(ddev, "\n");
++ 
++-	pm_runtime_disable(ddev->dev);
+++    if (IS_ENABLED(CONFIG_PM))
+++	    pm_runtime_disable(ddev->dev);
+++    else {
+++        clk_disable_unprepare(ldev->pixel_clk);
+++        if (ldev->bus_clk)
+++            clk_disable_unprepare(ldev->bus_clk);
+++    }
++ }
++ 
++ MODULE_AUTHOR("Philippe Cornu <philippe.cornu@st.com>");
+-- 
+2.43.0
+
