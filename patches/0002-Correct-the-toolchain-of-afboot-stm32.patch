@@ -1,4 +1,4 @@
-From 0db5a249f7ca3fa86cbacada2e283105c1c80ece Mon Sep 17 00:00:00 2001
+From 4ed5a8d519505e6cdf5896aa4159efd00a6984b7 Mon Sep 17 00:00:00 2001
 From: Chisheng Chen <johnny1001s000602@gmail.com>
 Date: Sat, 18 Apr 2026 00:27:57 +0800
 Subject: [PATCH 2/4] Correct the toolchain of afboot-stm32
