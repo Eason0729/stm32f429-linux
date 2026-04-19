@@ -44,4 +44,5 @@ jobs:
               echo "❌ $FILE is missing!"
               exit 1
             fi
+            ls -lh "$FILE"
           done
