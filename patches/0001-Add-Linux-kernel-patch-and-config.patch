@@ -1,112 +1,13 @@
-From ad04160f2b7e610ac806a4168e7b603dbf59b328 Mon Sep 17 00:00:00 2001
+From 7c47e46b82a0ded3429a967363b89af710e8d38a Mon Sep 17 00:00:00 2001
 From: Chisheng Chen <johnny1001s000602@gmail.com>
 Date: Sun, 19 Apr 2026 20:45:34 +0800
 Subject: [PATCH 1/4] Add Linux kernel patch and config
 
 ---
- .../stm32f429-disco/linux.config              |  91 ++++++++++++
  .../stm32f429-disco/patches/linux/linux.patch | 140 ++++++++++++++++++
- 2 files changed, 231 insertions(+)
- create mode 100644 board/stmicroelectronics/stm32f429-disco/linux.config
+ 1 file changed, 140 insertions(+)
  create mode 100644 board/stmicroelectronics/stm32f429-disco/patches/linux/linux.patch
 
-diff --git a/board/stmicroelectronics/stm32f429-disco/linux.config b/board/stmicroelectronics/stm32f429-disco/linux.config
-new file mode 100644
-index 00000000..03282c89
---- /dev/null
-+++ b/board/stmicroelectronics/stm32f429-disco/linux.config
-@@ -0,0 +1,91 @@
-+# CONFIG_LOCALVERSION_AUTO is not set
-+CONFIG_NO_HZ_IDLE=y
-+CONFIG_HIGH_RES_TIMERS=y
-+CONFIG_PREEMPT=y
-+CONFIG_LOG_BUF_SHIFT=12
-+CONFIG_BLK_DEV_INITRD=y
-+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
-+CONFIG_LD_DEAD_CODE_DATA_ELIMINATION=y
-+CONFIG_EXPERT=y
-+# CONFIG_MULTIUSER is not set
-+# CONFIG_FHANDLE is not set
-+# CONFIG_POSIX_TIMERS is not set
-+# CONFIG_BUG is not set
-+# CONFIG_FUTEX is not set
-+# CONFIG_EPOLL is not set
-+# CONFIG_SIGNALFD is not set
-+# CONFIG_TIMERFD is not set
-+# CONFIG_EVENTFD is not set
-+# CONFIG_AIO is not set
-+# CONFIG_IO_URING is not set
-+# CONFIG_ADVISE_SYSCALLS is not set
-+# CONFIG_MEMBARRIER is not set
-+# CONFIG_RSEQ is not set
-+# CONFIG_CACHESTAT_SYSCALL is not set
-+# CONFIG_KALLSYMS is not set
-+# CONFIG_MMU is not set
-+CONFIG_ARCH_STM32=y
-+# CONFIG_MACH_STM32F469 is not set
-+# CONFIG_MACH_STM32F746 is not set
-+# CONFIG_MACH_STM32F769 is not set
-+# CONFIG_MACH_STM32H743 is not set
-+CONFIG_CPU_V7M_NUM_IRQ=240
-+# CONFIG_ARM_DMA_MEM_BUFFERABLE is not set
-+CONFIG_SET_MEM_PARAM=y
-+CONFIG_DRAM_BASE=0x90000000
-+CONFIG_DRAM_SIZE=0x00800000
-+CONFIG_HZ_1000=y
-+# CONFIG_ATAGS is not set
-+CONFIG_XIP_KERNEL=y
-+CONFIG_XIP_PHYS_ADDR=0x0800C000
-+CONFIG_XIP_DEFLATED_DATA=y
-+# CONFIG_AUTO_ZRELADDR is not set
-+# CONFIG_SUSPEND is not set
-+# CONFIG_SECCOMP is not set
-+# CONFIG_STACKPROTECTOR is not set
-+# CONFIG_COMPAT_32BIT_TIME is not set
-+# CONFIG_BLOCK is not set
-+# CONFIG_COREDUMP is not set
-+CONFIG_SLUB_TINY=y
-+# CONFIG_COMPAT_BRK is not set
-+# CONFIG_VM_EVENT_COUNTERS is not set
-+CONFIG_DEVTMPFS=y
-+CONFIG_DEVTMPFS_MOUNT=y
-+# CONFIG_STANDALONE is not set
-+# CONFIG_PREVENT_FIRMWARE_BUILD is not set
-+# CONFIG_FW_LOADER is not set
-+# CONFIG_ALLOW_DEV_COREDUMP is not set
-+CONFIG_MTD=y
-+CONFIG_MTD_ROM=y
-+CONFIG_MTD_PHYSMAP=y
-+CONFIG_MTD_PHYSMAP_OF=y
-+# CONFIG_INPUT_KEYBOARD is not set
-+# CONFIG_INPUT_MOUSE is not set
-+# CONFIG_SERIO is not set
-+# CONFIG_UNIX98_PTYS is not set
-+# CONFIG_LEGACY_PTYS is not set
-+CONFIG_SERIAL_STM32=y
-+CONFIG_SERIAL_STM32_CONSOLE=y
-+CONFIG_HW_RANDOM=y
-+CONFIG_HW_RANDOM_STM32=y
-+# CONFIG_DEVMEM is not set
-+# CONFIG_DEVPORT is not set
-+# CONFIG_HWMON is not set
-+# CONFIG_USB_SUPPORT is not set
-+CONFIG_RTC_CLASS=y
-+CONFIG_RTC_DRV_STM32=y
-+# CONFIG_VIRTIO_MENU is not set
-+# CONFIG_VHOST_MENU is not set
-+# CONFIG_FILE_LOCKING is not set
-+# CONFIG_DNOTIFY is not set
-+# CONFIG_INOTIFY_USER is not set
-+CONFIG_ROMFS_FS=y
-+# CONFIG_CRC_OPTIMIZATIONS is not set
-+CONFIG_CONSOLE_LOGLEVEL_DEFAULT=15
-+CONFIG_CONSOLE_LOGLEVEL_QUIET=15
-+CONFIG_MESSAGE_LOGLEVEL_DEFAULT=7
-+# CONFIG_SYMBOLIC_ERRNAME is not set
-+# CONFIG_DEBUG_MISC is not set
-+# CONFIG_SECTION_MISMATCH_WARN_ONLY is not set
-+# CONFIG_RCU_TRACE is not set
-+# CONFIG_RUNTIME_TESTING_MENU is not set
 diff --git a/board/stmicroelectronics/stm32f429-disco/patches/linux/linux.patch b/board/stmicroelectronics/stm32f429-disco/patches/linux/linux.patch
 new file mode 100644
 index 00000000..6e415e8a

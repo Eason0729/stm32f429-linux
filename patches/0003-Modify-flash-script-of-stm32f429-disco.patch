@@ -1,4 +1,4 @@
-From 4213f5cb742eab7795c0e6fbe84fe0c0f582e482 Mon Sep 17 00:00:00 2001
+From 800f58cf27938fbe0ca1797a9bcd3826a1b892cf Mon Sep 17 00:00:00 2001
 From: Chisheng Chen <johnny1001s000602@gmail.com>
 Date: Sat, 18 Apr 2026 01:51:05 +0800
 Subject: [PATCH 3/4] Modify flash script of stm32f429-disco

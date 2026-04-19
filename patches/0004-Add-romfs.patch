@@ -1,4 +1,4 @@
-From 9c142d51040e75af5b3609ac5a11ae041d85af81 Mon Sep 17 00:00:00 2001
+From 9c7cfbfa5c31ede4e84de1f9bf1978be04958a19 Mon Sep 17 00:00:00 2001
 From: Chisheng Chen <johnny1001s000602@gmail.com>
 Date: Sat, 18 Apr 2026 03:20:12 +0800
 Subject: [PATCH 4/4] Add romfs
