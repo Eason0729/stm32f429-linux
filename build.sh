@@ -8,7 +8,7 @@ BUILDROOT_DIR="$ROOT_DIR/buildroot-$BUILDROOT_VERSION"
 
 patch_buildroot() {
     cd "$BUILDROOT_DIR"
-    for p in "$ROOT_DIR"/patches/*.patch; do
+    for p in "$ROOT_DIR"/patches/buildroot/*.patch; do
         patch -p1 < "$p"
     done
     cd "$ROOT_DIR"
@@ -16,7 +16,7 @@ patch_buildroot() {
     cp linux.config "$BUILDROOT_DIR/board/stmicroelectronics/stm32f429-disco"
     cp busybox-minimal.config "$BUILDROOT_DIR/package/busybox"
     cp uClibc-ng.config "$BUILDROOT_DIR/package/uclibc"
-    cp linux.patch "$BUILDROOT_DIR/board/stmicroelectronics/stm32f429-disco/patches/linux"
+    cp -a "$ROOT_DIR"/patches/linux/*.patch "$BUILDROOT_DIR/board/stmicroelectronics/stm32f429-disco/patches/linux"
 }
 
 fetch_sources() {
