@@ -1,0 +1,58 @@
+From 1f172ebcfea663dd6e961d2d3e4a670580095604 Mon Sep 17 00:00:00 2001
+From: Chisheng Chen <johnny1001s000602@gmail.com>
+Date: Fri, 24 Apr 2026 00:55:28 +0800
+Subject: [PATCH 5/5] Add doomgeneric package
+
+---
+ package/Config.in                  |  1 +
+ package/doomgeneric/Config.in      |  4 ++++
+ package/doomgeneric/doomgeneric.mk | 14 ++++++++++++++
+ 3 files changed, 19 insertions(+)
+ create mode 100644 package/doomgeneric/Config.in
+ create mode 100644 package/doomgeneric/doomgeneric.mk
+
+diff --git a/package/Config.in b/package/Config.in
+index 371a1c33..c5e5568f 100644
+--- a/package/Config.in
++++ b/package/Config.in
+@@ -278,6 +278,7 @@ comment "Sounds"
+ endmenu
+ 
+ menu "Games"
++    source "package/doomgeneric/Config.in"
+ 	source "package/ascii-invaders/Config.in"
+ 	source "package/chocolate-doom/Config.in"
+ 	source "package/doom-wad/Config.in"
+diff --git a/package/doomgeneric/Config.in b/package/doomgeneric/Config.in
+new file mode 100644
+index 00000000..c9355c43
+--- /dev/null
++++ b/package/doomgeneric/Config.in
+@@ -0,0 +1,4 @@
++config BR2_PACKAGE_DOOMGENERIC
++    bool "doomgeneric for STM32F429"
++    help
++        This will build the doomgeneric.
+diff --git a/package/doomgeneric/doomgeneric.mk b/package/doomgeneric/doomgeneric.mk
+new file mode 100644
+index 00000000..bb6031b8
+--- /dev/null
++++ b/package/doomgeneric/doomgeneric.mk
+@@ -0,0 +1,14 @@
++DOOMGENERIC_VERSION = df51d75ed0c1041c1a8a8c822e69bfc7b1936b77
++DOOMGENERIC_SITE = https://github.com/rota1001/doomgeneric.git
++DOOMGENERIC_SITE_METHOD = git
++
++define DOOMGENERIC_BUILD_CMDS
++	$(MAKE) -C "$(@D)/doomgeneric" CC="$(TARGET_CC)"
++endef
++
++define DOOMGENERIC_INSTALL_TARGET_CMDS
++	$(INSTALL) -D -m 0755 $(@D)/doomgeneric/doomgeneric $(TARGET_DIR)/root/doomgeneric
++$(INSTALL) -D -m 0755 $(@D)/doomgeneric/doom1.wad $(TARGET_DIR)/root/doom1.wad
++endef
++
++$(eval $(generic-package))
+-- 
+2.43.0
+
