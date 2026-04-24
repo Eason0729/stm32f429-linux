@@ -1,0 +1,59 @@
+From de9780c047b87b37a2abc7cd2fef0d44ee8abef4 Mon Sep 17 00:00:00 2001
+From: Chisheng Chen <johnny1001s000602@gmail.com>
+Date: Fri, 24 Apr 2026 09:21:14 +0800
+Subject: [PATCH 7/7] Add post olddefconfig assertion
+
+---
+ linux/linux.mk | 36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+
+diff --git a/linux/linux.mk b/linux/linux.mk
+index c61089bf..b3b0d932 100644
+--- a/linux/linux.mk
++++ b/linux/linux.mk
+@@ -686,6 +686,42 @@ endif
+ 
+ endif # BR_BUILDING
+ 
++REQUIRED_CONFIG_SET= \
++	CONFIG_ARCH_STM32 \
++	CONFIG_MACH_STM32F429 \
++	CONFIG_LD_DEAD_CODE_DATA_ELIMINATION \
++	CONFIG_CC_OPTIMIZE_FOR_SIZE \
++	CONFIG_XIP_KERNEL \
++	CONFIG_SERIAL_STM32 \
++	CONFIG_SERIAL_STM32_CONSOLE
++
++
++REQUIRED_CONFIG_UNSET= \
++	CONFIG_SYSFS \
++	CONFIG_MMU \
++	CONFIG_MACH_STM32F469 \
++	CONFIG_MACH_STM32F746 \
++	CONFIG_MACH_STM32F769 \
++	CONFIG_MACH_STM32H743
++
++define POST_OLDDEFCONFIG_ASSERTION
++	@echo "post-olddefconfig check"
++	@for conf in $(REQUIRED_CONFIG_SET); do \
++		if ! grep -q "^$$conf=y" $(LINUX_DIR)/.config; then \
++			echo "$$conf should be set in $(LINUX_DIR)/.config"; \
++			exit 1; \
++		fi; \
++	done
++	@for conf in $(REQUIRED_CONFIG_UNSET); do \
++		if grep -q "^$$conf=y" $(LINUX_DIR)/.config; then \
++			echo "$$conf should not set in $(LINUX_DIR)/.config"; \
++			exit 1; \
++		fi; \
++	done
++endef
++
++LINUX_POST_CONFIGURE_HOOKS += POST_OLDDEFCONFIG_ASSERTION
++
+ $(eval $(kconfig-package))
+ 
+ # Support for rebuilding the kernel after the cpio archive has
+-- 
+2.43.0
+
