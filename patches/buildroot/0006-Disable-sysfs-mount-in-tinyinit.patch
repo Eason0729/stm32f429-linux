@@ -1,0 +1,24 @@
+From 4970a3e068582818588f9f1b2dec6ff839889f0b Mon Sep 17 00:00:00 2001
+From: Chisheng Chen <johnny1001s000602@gmail.com>
+Date: Fri, 24 Apr 2026 08:47:41 +0800
+Subject: [PATCH 6/6] Disable sysfs mount in tinyinit
+
+---
+ package/tinyinit/init | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/package/tinyinit/init b/package/tinyinit/init
+index fbcb4810..4b34ad9d 100644
+--- a/package/tinyinit/init
++++ b/package/tinyinit/init
+@@ -6,7 +6,6 @@
+ 
+ # Mount procfs and sysfs
+ /bin/mount -t proc proc /proc
+-/bin/mount -t sysfs sysfs /sys
+ 
+ # When the kernel is directly booted, devtmpfs is not automatically mounted.
+ # Manually mount it if needed.
+-- 
+2.43.0
+
