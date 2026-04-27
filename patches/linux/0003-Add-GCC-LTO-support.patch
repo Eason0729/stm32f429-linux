@@ -1,7 +1,7 @@
-From d5dd953b5e276bfc7af94e74db4799b7571ae779 Mon Sep 17 00:00:00 2001
+From 284800d34d29d11b617819b1c519a98043545276 Mon Sep 17 00:00:00 2001
 From: Chisheng Chen <johnny1001s000602@gmail.com>
-Date: Tue, 21 Apr 2026 01:14:21 +0800
-Subject: [PATCH 3/3] Add GCC LTO support
+Date: Mon, 27 Apr 2026 22:44:32 +0800
+Subject: [PATCH 3/5] Add GCC LTO support
 
 ---
  Kbuild                              |  1 +
