@@ -1,13 +1,13 @@
-From 4b8500d1c1251f91245a4e170aad522ebcd1fe81 Mon Sep 17 00:00:00 2001
+From 05c5a729f29b4ac42a41a714b93daa9b98c00cbf Mon Sep 17 00:00:00 2001
 From: Chisheng Chen <johnny1001s000602@gmail.com>
 Date: Tue, 28 Apr 2026 00:01:42 +0800
-Subject: [PATCH 5/5] Fix touchscreen busy error
+Subject: [PATCH 5/9] Fix touchscreen busy error
 
 ---
  arch/arm/boot/dts/st/stm32f4-pinctrl.dtsi |  4 +--
  drivers/i2c/busses/i2c-stm32f4.c          | 31 ++++++++++++++++++++---
- drivers/input/touchscreen/stmpe-ts.c      |  6 ++++-
- 3 files changed, 35 insertions(+), 6 deletions(-)
+ drivers/input/touchscreen/stmpe-ts.c      |  8 ++++--
+ 3 files changed, 36 insertions(+), 7 deletions(-)
 
 diff --git a/arch/arm/boot/dts/st/stm32f4-pinctrl.dtsi b/arch/arm/boot/dts/st/stm32f4-pinctrl.dtsi
 index d34ad52c7..befe48909 100644
@@ -95,18 +95,27 @@ index b3d56d0aa..4c88ef890 100644
  	init_completion(&i2c_dev->complete);
  
 diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
-index af0fb38bc..9e1249870 100644
+index af0fb38bc..5dc474ef3 100644
 --- a/drivers/input/touchscreen/stmpe-ts.c
 +++ b/drivers/input/touchscreen/stmpe-ts.c
+@@ -31,7 +31,7 @@
+ #define STMPE_REG_FIFO_TH		0x4A
+ #define STMPE_REG_FIFO_STA		0x4B
+ #define STMPE_REG_FIFO_SIZE		0x4C
+-#define STMPE_REG_TSC_DATA_XYZ		0x52
++#define STMPE_REG_TSC_DATA_XYZ_INC	0xD7
+ #define STMPE_REG_TSC_FRACTION_Z	0x56
+ #define STMPE_REG_TSC_I_DRIVE		0x58
+ 
 @@ -147,7 +147,11 @@ static irqreturn_t stmpe_ts_handler(int irq, void *data)
  	stmpe_set_bits(ts->stmpe, STMPE_REG_TSC_CTRL,
  				STMPE_TSC_CTRL_TSC_EN, 0);
  
 -	stmpe_block_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ, 4, data_set);
-+	data_set[0] = stmpe_reg_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ);
-+	data_set[1] = stmpe_reg_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ);
-+	data_set[2] = stmpe_reg_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ);
-+	data_set[3] = stmpe_reg_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ);
++	data_set[0] = stmpe_reg_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ_INC);
++	data_set[1] = stmpe_reg_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ_INC);
++	data_set[2] = stmpe_reg_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ_INC);
++	data_set[3] = stmpe_reg_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ_INC);
 +
  
  	x = (data_set[0] << 4) | (data_set[1] >> 4);

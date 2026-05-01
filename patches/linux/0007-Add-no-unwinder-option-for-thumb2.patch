@@ -1,7 +1,7 @@
-From ef07f53472e241c03f6746488100aadf5d978d9c Mon Sep 17 00:00:00 2001
+From 056b732437e1804c59087ab02c81088a1bb40633 Mon Sep 17 00:00:00 2001
 From: Chisheng Chen <johnny1001s000602@gmail.com>
 Date: Thu, 30 Apr 2026 17:17:33 +0800
-Subject: [PATCH 7/7] Add no unwinder option for thumb2
+Subject: [PATCH 7/9] Add no unwinder option for thumb2
 
 ---
  arch/arm/Kconfig             | 2 +-
