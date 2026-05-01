@@ -29,6 +29,22 @@ fetch_sources() {
     fi
 }
 
+build_initromfs() {
+    make -C init
+    rm -rf rootfs
+    mkdir rootfs
+    mkdir -p rootfs/bin
+    mkdir -p rootfs/dev
+    mkdir -p rootfs/lib
+    mkdir -p rootfs/proc
+    mkdir -p rootfs/root
+    mv init/init rootfs
+    cp -a -d $BUILDROOT_DIR/output/target/lib/* rootfs/lib
+    cp -a -d $BUILDROOT_DIR/output/target/usr/lib/* rootfs/lib
+    $BUILDROOT_DIR/output/host/bin/genromfs -d rootfs -f $BUILDROOT_DIR/output/images/rootfs.romfs
+    build_initromfs
+}
+
 build() {
     cd $BUILDROOT_DIR
     make stm32f429_disco_xip_defconfig

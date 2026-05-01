@@ -1,0 +1,37 @@
+From 9a1fc2477a3606462e0a4eaf8c4975c779f4f0b3 Mon Sep 17 00:00:00 2001
+From: Chisheng Chen <johnny1001s000602@gmail.com>
+Date: Fri, 1 May 2026 19:24:53 +0800
+Subject: [PATCH 9/9] Change back to romfs as an initfs
+
+---
+ arch/arm/boot/dts/st/stm32f429-disco.dts | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/boot/dts/st/stm32f429-disco.dts b/arch/arm/boot/dts/st/stm32f429-disco.dts
+index 34d6cdd1a..cda8a951d 100644
+--- a/arch/arm/boot/dts/st/stm32f429-disco.dts
++++ b/arch/arm/boot/dts/st/stm32f429-disco.dts
+@@ -58,7 +58,7 @@ / {
+ 	compatible = "st,stm32f429i-disco", "st,stm32f429";
+ 
+ 	chosen {
+-		bootargs = "root=/dev/mmcblk0p1 rootwait rootfstype=ext2 ro";
++        bootargs = "root=mtd:romfs rootfstype=romfs ro init=/init";
+ 		stdout-path = "serial0:115200n8";
+ 	};
+ 
+@@ -73,9 +73,9 @@ flash@8000000 {
+ 		bank-width = <4>;
+ 		#address-cells = <1>;
+ 
+-		partition@18d000 {
++		partition@190000 {
+ 			label = "romfs";
+-			reg = <0x18d000 0x73000>;
++			reg = <0x190000 0x70000>;
+ 		};
+ 	};
+ 
+-- 
+2.43.0
+

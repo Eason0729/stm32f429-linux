@@ -37,6 +37,10 @@ jobs:
           buildroot-2026.02/output/images/xipImage
           buildroot-2026.02/output/target/lib/ld-uClibc-1.0.56.so
           buildroot-2026.02/output/target/lib/libuClibc-1.0.56.so
+          rootfs/init
+          rootfs/lib/ld-uClibc-1.0.56.so
+          rootfs/lib/libuClibc-1.0.56.so
+          rootfs/lib/libdrm.so.2.131.0
           "
 
           for FILE in $FILES; do
