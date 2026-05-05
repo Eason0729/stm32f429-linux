@@ -1,0 +1,104 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Eason <30045503+Eason0729@users.noreply.github.com>
+Date: Sun, 3 May 2026 00:00:00 +0800
+Subject: [PATCH 10/11] Switch from SDIO to SPI4 MMC card, disable display,
+ add USB gadget
+
+- Replace SDIO with SPI4 MMC (mmc_spi) at 2 MHz on PE2/PE4/PE5/PE6
+- Disable LTDC display and I2C3 touchscreen to save space
+- Change USB OTG HS to peripheral mode for adbd
+- Add spi4_pins pinctrl group
+
+Signed-off-by: 邱繼叡 Eason CHIU <30045503+Eason0729@users.noreply.github.com>
+---
+ arch/arm/boot/dts/st/stm32f429-disco.dts  | 28 +++++++++++++----------
+ arch/arm/boot/dts/st/stm32f4-pinctrl.dtsi | 14 +++++++++++
+ 2 files changed, 30 insertions(+), 12 deletions(-)
+
+diff --git a/arch/arm/boot/dts/st/stm32f429-disco.dts b/arch/arm/boot/dts/st/stm32f429-disco.dts
+index cda8a951d..1b5228f84 100644
+--- a/arch/arm/boot/dts/st/stm32f429-disco.dts
++++ b/arch/arm/boot/dts/st/stm32f429-disco.dts
+@@ -79,15 +79,19 @@
+ &clk_hse {
+ 	clock-frequency = <8000000>;
+ };
+ 
+-&sdio {
++&spi4 {
+ 	status = "okay";
+-	pinctrl-names = "default", "opendrain";
+-	pinctrl-0 = <&sdio_pins>;
+-	pinctrl-1 = <&sdio_pins_od>;
+-	bus-width = <1>;
+-	max-frequency = <1000000>;
+-	broken-cd;
+-	vmmc-supply = <&v3v3>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&spi4_pins>;
++	cs-gpios = <&gpioe 4 GPIO_ACTIVE_LOW>;
++
++	mmc-slot@0 {
++		compatible = "mmc-spi-slot";
++		reg = <0>;
++		spi-max-frequency = <2000000>;
++		voltage-ranges = <3300 3300>;
++		broken-cd;
++	};
+ };
+ 
+ &crc {
+@@ -97,7 +101,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&i2c3_pins>;
+ 	clock-frequency = <100000>;
+-	status = "okay";
++	status = "disabled";
+ 
+ 	stmpe811@41 {
+ 		compatible = "st,stmpe811";
+@@ -139,7 +143,7 @@
+ };
+ 
+ &ltdc {
+-	status = "okay";
++	status = "disabled";
+ 	pinctrl-0 = <&ltdc_pins_b>;
+ 	pinctrl-names = "default";
+ 
+@@ -210,7 +214,7 @@
+ 
+ &usbotg_hs {
+ 	compatible = "st,stm32f4x9-fsotg";
+-	dr_mode = "host";
++	dr_mode = "peripheral";
+ 	pinctrl-0 = <&usbotg_fs_pins_b>;
+ 	pinctrl-names = "default";
+ 	status = "okay";
+diff --git a/arch/arm/boot/dts/st/stm32f4-pinctrl.dtsi b/arch/arm/boot/dts/st/stm32f4-pinctrl.dtsi
+index befe48909..7828d7330 100644
+--- a/arch/arm/boot/dts/st/stm32f4-pinctrl.dtsi
++++ b/arch/arm/boot/dts/st/stm32f4-pinctrl.dtsi
+@@ -382,6 +382,20 @@
+ 				};
+ 			};
+ 
++			spi4_pins: spi4-0 {
++				pins1 {
++					pinmux = <STM32_PINMUX('E', 2, AF5)>, /* SPI4_SCK */
++						 <STM32_PINMUX('E', 6, AF5)>; /* SPI4_MOSI */
++					bias-disable;
++					drive-push-pull;
++					slew-rate = <0>;
++				};
++				pins2 {
++					pinmux = <STM32_PINMUX('E', 5, AF5)>; /* SPI4_MISO */
++					bias-disable;
++				};
++			};
++
+ 			i2c3_pins: i2c3-0 {
+ 				pins {
+ 					pinmux = <STM32_PINMUX('C', 9, AF4)>,
+-- 
+2.43.0

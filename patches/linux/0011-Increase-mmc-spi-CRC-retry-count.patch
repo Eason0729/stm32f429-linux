@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Eason <30045503+Eason0729@users.noreply.github.com>
+Date: Sun, 3 May 2026 00:00:00 +0800
+Subject: [PATCH 11/11] Increase mmc_spi CRC retry count to 100
+
+Increase the CRC retry count for SPI MMC transfers from 5 to 100.
+This provides more tolerance for intermittent SPI bus errors on
+wiring with marginal signal integrity, preventing the MMC core
+from falsely declaring the card as removed after exhausting retries.
+
+Signed-off-by: 邱繼叡 Eason CHIU <30045503+Eason0729@users.noreply.github.com>
+---
+ drivers/mmc/host/mmc_spi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/host/mmc_spi.c b/drivers/mmc/host/mmc_spi.c
+index deb39fc80..b9e20753f 100644
+--- a/drivers/mmc/host/mmc_spi.c
++++ b/drivers/mmc/host/mmc_spi.c
+@@ -898,7 +898,7 @@
+ {
+ 	struct mmc_spi_host	*host = mmc_priv(mmc);
+ 	int			status = -EINVAL;
+-	int			crc_retry = 5;
++	int			crc_retry = 100;
+ 	struct mmc_command	stop;
+ 
+ #ifdef DEBUG
+-- 
+2.43.0
