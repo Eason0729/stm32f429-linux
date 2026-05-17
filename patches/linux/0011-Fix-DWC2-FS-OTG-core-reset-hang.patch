@@ -1,0 +1,186 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Eason <30045503+Eason0729@users.noreply.github.com>
+Date: Sat, 17 May 2026 00:00:00 +0800
+Subject: [PATCH 11/11] usb: dwc2: Fix STM32F429 OTG_HS FS mode probe and
+ enumeration
+
+Four fixes for the DWC2 driver on STM32F429-Discovery with OTG_HS
+controller in FS mode (internal transceiver, pins PB14/PB15):
+
+1. platform.c: Power up FS transceiver (GGPIO PWRDWN), set PHYSEL, force
+   device mode (FORCEDEVMODE), and disable VBUS sensing (GGPIO VBDEN=1 aka
+   NOVBUSSENS). Skip probe-time core reset: the 48 MHz PHY clock may not
+   be running yet (dwc2_fs_phy_init handles reset during gadget connect).
+
+2. params.c: Guard in dwc2_set_param_phy_type() to preserve phy_type=FS
+   set by st,stm32f4x9-fsotg platform params. The OTG_HS core hardware
+   reports UTMI phy in GHWCFG2, which otherwise overrides the platform
+   setting and causes dwc2_hs_phy_init() to run instead of
+   dwc2_fs_phy_init().
+
+3. gadget.c: Set op_state=OTG_STATE_B_PERIPHERAL and call
+   usb_udc_vbus_handler(true) in dwc2_hsotg_udc_start() so the UDC
+   framework enables the D+ pullup. Skip CSRST reset in
+   core_init_disconnected() for STM32F4x9 FS-OTG to avoid HANG.
+
+4. core.c: Skip CSRST reset after PHYSEL in dwc2_fs_phy_init() for
+   STM32F4x9 FS-OTG. The 48 MHz PHY clock is not available for the
+   CSRST wait logic, causing "HANG! Soft Reset timeout".
+
+The GGPIO VBDEN (NOVBUSSENS) is essential on STM32F429-Discovery:
+the STMPS2141 power switch blocks VBUS in device mode, so BSVLD=0
+and the hardware DP pullup (gated on BSVLD=1 per RM0090) would
+never activate without this override.
+
+Signed-off-by: 邱繼叡 Eason CHIU <30045503+Eason0729@users.noreply.github.com>
+
+diff --git a/drivers/usb/dwc2/platform.c b/drivers/usb/dwc2/platform.c
+index e8e95d6..2b33ccf 100644
+--- a/drivers/usb/dwc2/platform.c
++++ b/drivers/usb/dwc2/platform.c
+@@ -503,12 +503,33 @@
+ 		goto error;
+ 
+ 	/*
+-	 * Reset before dwc2_get_hwparams() then it could get power-on real
+-	 * reset value form registers.
++	 * Power up FS PHY, set PHYSEL, force device mode, and
++	 * disable VBUS sensing. Core reset is skipped: the 48 MHz
++	 * PHY clock for CSRST may not be running yet.
++	 *
++	 * GGPIO bit 21 is NOVBUSSENS on the OTG_HS core (RM0090).
++	 * Setting it forces BSVLD=1 so the hardware DP pullup
++	 * activates (the STMPS2141 blocks VBUS in device mode).
+ 	 */
+-	retval = dwc2_core_reset(hsotg, false);
+-	if (retval)
+-		goto error;
++	if (!hsotg->phy) {
++		u32 v;
++
++		v = dwc2_readl(hsotg, GGPIO);
++		if (!(v & GGPIO_STM32_OTG_GCCFG_PWRDWN))
++			dwc2_writel(hsotg, v | GGPIO_STM32_OTG_GCCFG_PWRDWN,
++				    GGPIO);
++
++		v = dwc2_readl(hsotg, GUSBCFG);
++		v |= GUSBCFG_PHYSEL;
++		v |= GUSBCFG_FORCEDEVMODE;
++		dwc2_writel(hsotg, v, GUSBCFG);
++
++		v = dwc2_readl(hsotg, GGPIO);
++		v |= GGPIO_STM32_OTG_GCCFG_VBDEN;
++		dwc2_writel(hsotg, v, GGPIO);
++	}
++
++	/* Skip probe-time core reset (CSRST needs PHY clock). */
+ 
+ 	/* Detect config values from hardware */
+ 	retval = dwc2_get_hwparams(hsotg);
+diff --git a/drivers/usb/dwc2/params.c b/drivers/usb/dwc2/params.c
+index 754a2c4..81f5d33 100644
+--- a/drivers/usb/dwc2/params.c
++++ b/drivers/usb/dwc2/params.c
+@@ -412,6 +412,9 @@
+ 	if (dwc2_is_fs_iot(hsotg))
+ 		hsotg->params.phy_type = DWC2_PHY_TYPE_PARAM_FS;
+ 
++	if (hsotg->params.phy_type == DWC2_PHY_TYPE_PARAM_FS)
++		return;
++
+ 	hsotg->params.phy_type = val;
+ }
+ 
+@@ -425,7 +428,8 @@
+ 	if (dwc2_is_fs_iot(hsotg))
+ 		val = DWC2_SPEED_PARAM_FULL;
+ 
+-	if (dwc2_is_hs_iot(hsotg))
++	if (dwc2_is_hs_iot(hsotg) &&
++	    hsotg->params.speed != DWC2_SPEED_PARAM_FULL)
+ 		val = DWC2_SPEED_PARAM_HIGH;
+ 
+ 	hsotg->params.speed = val;
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index 5191779..51ebf4c 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -3394,8 +3394,10 @@
+ 	kill_all_requests(hsotg, hsotg->eps_out[0], -ECONNRESET);
+ 
+ 	if (!is_usb_reset) {
+-		if (dwc2_core_reset(hsotg, true))
+-			return;
++		if (!hsotg->params.activate_stm_fs_transceiver) {
++			if (dwc2_core_reset(hsotg, true))
++				return;
++		}
+ 	} else {
+ 		/* all endpoints should be shutdown */
+ 		for (ep = 1; ep < hsotg->num_of_eps; ep++) {
+@@ -3599,7 +3601,6 @@
+ 
+ void dwc2_hsotg_core_connect(struct dwc2_hsotg *hsotg)
+ {
+-	/* remove the soft-disconnect and let's go */
+ 	if (!hsotg->role_sw || (dwc2_readl(hsotg, GOTGCTL) & GOTGCTL_BSESVLD))
+ 		dwc2_clear_bit(hsotg, DCTL, DCTL_SFTDISCON);
+ }
+@@ -4579,6 +4580,11 @@
+ 	hsotg->enabled = 0;
+ 	spin_unlock_irqrestore(&hsotg->lock, flags);
+ 
++	if (hsotg->dr_mode == USB_DR_MODE_PERIPHERAL) {
++		hsotg->op_state = OTG_STATE_B_PERIPHERAL;
++		usb_udc_vbus_handler(gadget, true);
++	}
++
+ 	gadget->sg_supported = using_desc_dma(hsotg);
+ 	dev_info(hsotg->dev, "bound driver %s\n", driver->driver.name);
+ 
+@@ -4940,11 +4946,11 @@
+ 	u32 val;
+ 	int idx;
+ 
+-	dev_info(dev, "DCFG=0x%08x, DCTL=0x%08x, DIEPMSK=%08x\n",
++	dev_dbg(dev, "DCFG=0x%08x, DCTL=0x%08x, DIEPMSK=%08x\n",
+ 		 dwc2_readl(hsotg, DCFG), dwc2_readl(hsotg, DCTL),
+ 		 dwc2_readl(hsotg, DIEPMSK));
+ 
+-	dev_info(dev, "GAHBCFG=0x%08x, GHWCFG1=0x%08x\n",
++	dev_dbg(dev, "GAHBCFG=0x%08x, GHWCFG1=0x%08x\n",
+ 		 dwc2_readl(hsotg, GAHBCFG), dwc2_readl(hsotg, GHWCFG1));
+ 
+ 	dev_info(dev, "GRXFSIZ=0x%08x, GNPTXFSIZ=0x%08x\n",
+diff --git a/drivers/usb/dwc2/core.c b/drivers/usb/dwc2/core.c
+index abc1234..def5678 100644
+--- a/drivers/usb/dwc2/core.c
++++ b/drivers/usb/dwc2/core.c
+@@ -1036,13 +1036,20 @@
+ 
+ 			dwc2_set_clock_switch_timer(hsotg);
+ 
+-			/* Reset after a PHY select */
+-			retval = dwc2_core_reset(hsotg, false);
+-
+-			if (retval) {
+-				dev_err(hsotg->dev,
+-					"%s: Reset failed, aborting", __func__);
+-				return retval;
++			/*
++			 * Reset after a PHY select. For STM32F4x9 FS-OTG
++			 * the 48 MHz PHY clock is not available, so
++			 * the CSRST bit would hang. Skip the reset;
++			 * the core was already reset at POR.
++			 */
++			if (!hsotg->params.activate_stm_fs_transceiver) {
++				retval = dwc2_core_reset(hsotg, false);
++				if (retval) {
++					dev_err(hsotg->dev,
++						"%s: Reset failed, aborting",
++						__func__);
++					return retval;
++				}
+ 			}
+ 		}
+ 
