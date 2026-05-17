@@ -15,7 +15,7 @@ index 34d6cdd1a..cda8a951d 100644
  	compatible = "st,stm32f429i-disco", "st,stm32f429";
  
  	chosen {
--		bootargs = "root=/dev/mmcblk0p1 rootwait rootfstype=ext2 ro";
+-		bootargs = "root=/dev/mmcblk0 rootwait rootfstype=ext2 ro";
 +        bootargs = "root=mtd:romfs rootfstype=romfs ro init=/init";
  		stdout-path = "serial0:115200n8";
  	};
