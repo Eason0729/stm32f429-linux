@@ -4,23 +4,22 @@ Date: Sun, 3 May 2026 00:00:00 +0800
 Subject: [PATCH 10/11] Switch from SDIO to SPI4 MMC card, disable display,
  add USB gadget
 
-- Replace SDIO with SPI4 MMC (mmc_spi) at 2 MHz on PE2/PE4/PE5/PE6
+- Replace SDIO with SPI4 MMC (mmc_spi) at 12 MHz on PE2/PE4/PE5/PE6
 - Disable LTDC display and I2C3 touchscreen to save space
 - Change USB OTG HS to peripheral mode for adbd
 - Add spi4_pins pinctrl group
 
 Signed-off-by: 邱繼叡 Eason CHIU <30045503+Eason0729@users.noreply.github.com>
 ---
- arch/arm/boot/dts/st/stm32f429-disco.dts  | 28 +++++++++++++----------
- arch/arm/boot/dts/st/stm32f4-pinctrl.dtsi | 14 +++++++++++
- 2 files changed, 30 insertions(+), 12 deletions(-)
+ arch/arm/boot/dts/st/stm32f429-disco.dts  | 24 +++++++++++++++--------
+ arch/arm/boot/dts/st/stm32f4-pinctrl.dtsi | 13 +++++++++++++
+ 2 files changed, 29 insertions(+), 8 deletions(-)
 
 diff --git a/arch/arm/boot/dts/st/stm32f429-disco.dts b/arch/arm/boot/dts/st/stm32f429-disco.dts
 index cda8a951d..1b5228f84 100644
 --- a/arch/arm/boot/dts/st/stm32f429-disco.dts
 +++ b/arch/arm/boot/dts/st/stm32f429-disco.dts
-@@ -79,15 +79,19 @@
- &clk_hse {
+@@ -135,15 +135,19 @@
  	clock-frequency = <8000000>;
  };
  
@@ -41,14 +40,14 @@ index cda8a951d..1b5228f84 100644
 +	mmc-slot@0 {
 +		compatible = "mmc-spi-slot";
 +		reg = <0>;
-+		spi-max-frequency = <2000000>;
++		spi-max-frequency = <12000000>;
 +		voltage-ranges = <3300 3300>;
 +		broken-cd;
 +	};
  };
  
  &crc {
-@@ -97,7 +101,7 @@
+@@ -154,7 +158,7 @@
  	pinctrl-names = "default";
  	pinctrl-0 = <&i2c3_pins>;
  	clock-frequency = <100000>;
@@ -57,7 +56,7 @@ index cda8a951d..1b5228f84 100644
  
  	stmpe811@41 {
  		compatible = "st,stmpe811";
-@@ -139,7 +143,7 @@
+@@ -196,7 +200,7 @@
  };
  
  &ltdc {
@@ -66,7 +65,7 @@ index cda8a951d..1b5228f84 100644
  	pinctrl-0 = <&ltdc_pins_b>;
  	pinctrl-names = "default";
  
-@@ -210,7 +214,7 @@
+@@ -267,7 +271,7 @@
  
  &usbotg_hs {
  	compatible = "st,stm32f4x9-fsotg";
@@ -79,10 +78,10 @@ diff --git a/arch/arm/boot/dts/st/stm32f4-pinctrl.dtsi b/arch/arm/boot/dts/st/st
 index befe48909..7828d7330 100644
 --- a/arch/arm/boot/dts/st/stm32f4-pinctrl.dtsi
 +++ b/arch/arm/boot/dts/st/stm32f4-pinctrl.dtsi
-@@ -382,6 +382,20 @@
+@@ -381,6 +381,19 @@
+ 					bias-disable;
  				};
  			};
- 
 +			spi4_pins: spi4-0 {
 +				pins1 {
 +					pinmux = <STM32_PINMUX('E', 2, AF5)>, /* SPI4_SCK */
@@ -96,9 +95,6 @@ index befe48909..7828d7330 100644
 +					bias-disable;
 +				};
 +			};
-+
+ 
  			i2c3_pins: i2c3-0 {
  				pins {
- 					pinmux = <STM32_PINMUX('C', 9, AF4)>,
--- 
-2.43.0

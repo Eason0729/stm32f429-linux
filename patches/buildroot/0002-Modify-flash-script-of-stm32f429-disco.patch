@@ -17,7 +17,7 @@ index 3e2bf121..79daa5c9 100755
  
 +COMBINED="${OUTPUT_DIR}/images/xip_rootfs_combined.bin"
 +XIP_SIZE=$(stat -c%s "${OUTPUT_DIR}/images/xipImage")
-+PAD_TARGET=$((0x08150000 - 0x0800C000))
++PAD_TARGET=$((0x08190000 - 0x0800C000))
 +if [ "$XIP_SIZE" -gt "$PAD_TARGET" ]; then
 +    echo "ERROR: xipImage ($XIP_SIZE bytes) exceeds rootfs start offset ($PAD_TARGET bytes)"
 +    exit 1
