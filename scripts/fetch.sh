@@ -1,4 +1,6 @@
+#!/bin/bash
 BUILDROOT_VERSION=2026.02
+set -eu
 
 ROOT_DIR="$(pwd)"
 BUILDROOT_DIR="$ROOT_DIR/buildroot-$BUILDROOT_VERSION"
@@ -6,7 +8,7 @@ BUILDROOT_DIR="$ROOT_DIR/buildroot-$BUILDROOT_VERSION"
 patch_buildroot() {
     cd "$BUILDROOT_DIR"
     for p in "$ROOT_DIR"/patches/buildroot/*.patch; do
-        patch -p1 < "$p"
+        patch -p1 -N < "$p"
     done
     cd "$ROOT_DIR"
     cp buildroot.config "$BUILDROOT_DIR/configs/stm32f429_disco_xip_defconfig"
@@ -22,9 +24,11 @@ fetch_sources() {
     fi
     if [ ! -d "$BUILDROOT_DIR" ]; then
         tar xvf buildroot-$BUILDROOT_VERSION.tar.xz
-        patch_buildroot
     fi
 }
 
 fetch_sources
-patch_buildroot
+if [ ! -f "$BUILDROOT_DIR/.patched" ]; then
+    patch_buildroot
+    touch "$BUILDROOT_DIR/.patched"
+fi

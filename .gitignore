@@ -1,1 +1,5 @@
-buildroot-2026.02/
+/buildroot-2026.02
+/rootfs
+/buildroot-2026.02.tar.xz
+/rootfs.ext2
+/mnt
